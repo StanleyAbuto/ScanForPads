@@ -3,10 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:pad_app/screens/home_screen.dart';
 import 'package:pad_app/screens/students_details.dart';
 import 'package:pad_app/services/database_service.dart';
 import 'package:pad_app/widgets/add_student.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 import '../constants.dart';
 
@@ -19,7 +23,7 @@ class _StudentsTabState extends State<StudentsTab> {
   CollectionReference collectionReference;
   final DatabaseService removeStudent = DatabaseService();
 
-  String barcode = "";
+  String qrCode = 'Unknown';
 
   @override
   void initState() {
@@ -39,14 +43,25 @@ class _StudentsTabState extends State<StudentsTab> {
           appBar: AppBar(
             elevation: 0,
             automaticallyImplyLeading: false,
-            backgroundColor: Colors.transparent,
+            backgroundColor: Colors.pink,
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()))),
             actions: <Widget>[
               IconButton(
                   icon: Icon(Icons.search),
-                  color: Colors.pink,
+                  color: Colors.white,
                   onPressed: () {
                     showSearch(context: context, delegate: DataSearch());
-                  })
+                  }),
+              IconButton(
+                icon: Icon(Icons.qr_code_scanner_rounded),
+                color: Colors.white,
+                onPressed: () {
+                  scanQRCode();
+                },
+              ),
             ],
           ),
           floatingActionButton: FloatingActionButton(
@@ -281,6 +296,46 @@ class _StudentsTabState extends State<StudentsTab> {
                 )),
     );
   }
+
+  Future<void> scanQRCode() async {
+    try {
+      final qrCode = await FlutterBarcodeScanner.scanBarcode(
+        '#ffc0cb',
+        'Cancel',
+        true,
+        ScanMode.QR,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        this.qrCode = qrCode;
+        checkingValue(qrCode);
+      });
+    } on PlatformException {
+      qrCode = 'Failed to get platform version.';
+    }
+  }
+
+  checkingValue(String data) {
+    if (qrCode != null || qrCode != "") {
+      if (qrCode.contains("Semeyan") || qrCode.contains("Kaseaine")) {
+        return Navigator.push(context,
+            MaterialPageRoute(builder: (context) => StudentsDetails()));
+      } else {
+        Fluttertoast.showToast(
+            msg: "Invalid QR image",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+    } else {
+      return null;
+    }
+  }
 }
 
 class DataSearch extends SearchDelegate<String> {
@@ -365,6 +420,5 @@ class DataSearch extends SearchDelegate<String> {
       ),
       itemCount: suggestionList.length,
     );
-    throw UnimplementedError();
   }
 }

@@ -8,6 +8,9 @@ class DatabaseService {
   final CollectionReference studentsCollection =
       FirebaseFirestore.instance.collection('Schools');
 
+  final CollectionReference distributionsCollection =
+      FirebaseFirestore.instance.collection('distributions');
+
   final DocumentReference delete =
       FirebaseFirestore.instance.collection('Schools').doc(kDBtoUse);
 
@@ -43,6 +46,25 @@ class DatabaseService {
       "phoneNumber": phoneNumber,
       "photo": photo,
       "status": status
+    });
+  }
+
+  Future<void> distributions(
+    Timestamp time,
+    String user,
+    String pads,
+    String id,
+    String issuedBy,
+  ) async {
+    return await distributionsCollection
+        .doc(kDBtoUse)
+        .collection('distributions')
+        .add({
+      "time": time,
+      "user": user,
+      "pads": pads,
+      "id": id,
+      "issuedBy": issuedBy,
     });
   }
 }

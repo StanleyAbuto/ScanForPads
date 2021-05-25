@@ -3,11 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:pad_app/screens/distribution_screen.dart';
 import 'package:pad_app/services/database_service.dart';
+import 'package:pad_app/tabs/students_tab.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 import '../constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
+
+import 'qr_codes_screen.dart';
 
 class StudentsDetails extends StatefulWidget {
   @override
@@ -20,6 +25,29 @@ class _StudentsDetailsState extends State<StudentsDetails> {
   final DatabaseService removeStudent = DatabaseService();
 
   String barcode = "";
+  void checkUser(String user) async {
+    if (user == 'nabuyuni.sankan@strathmore.edu') {
+      kProfileImage = 'assets/profile.jpg';
+      kName = 'Nabuyuni Sankan';
+      kSchool = 'Narok Primary School';
+      kDBtoUse = 'Narok Primary School';
+    } else if (user == 'nabuyuni@strathmore.edu') {
+      kProfileImage = 'assets/profile1.jpg';
+      kName = 'Nabuyuni';
+      kSchool = 'Olkeri Primary school';
+      kDBtoUse = 'Olkeri Primary school';
+    } else if (user == 'bizeysankan@gmail.com') {
+      kProfileImage = 'assets/profile2.jpg';
+      kName = 'Bizey';
+      kSchool = 'Masikonde Primary School';
+      kDBtoUse = 'Masikonde Primary School';
+    } else if (user == 'sankan@gmail.com') {
+      kProfileImage = 'assets/profile3.jpg';
+      kName = 'Sankan';
+      kSchool = 'Siyapei Primary School';
+      kDBtoUse = 'BUShus6GvovjCb9lT48X';
+    }
+  }
 
   @override
   void initState() {
@@ -33,9 +61,20 @@ class _StudentsDetailsState extends State<StudentsDetails> {
 
   @override
   Widget build(BuildContext context) {
+    int rawDate = DateTime.now().millisecondsSinceEpoch;
+    //final df = new DateFormat('dd-MM-yyyy hh:mm a');
+    //var date =
+    //  (df.format(new DateTime.fromMillisecondsSinceEpoch(rawDate * 1000)));
+
+    final ButtonStyle style =
+        ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 16));
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => StudentsTab()))),
           title: Text('Student details'),
         ),
         body: collectionReference != null
@@ -192,14 +231,8 @@ class _StudentsDetailsState extends State<StudentsDetails> {
                                                 children: <Widget>[
                                                   Text("Contact: " +
                                                       "${doc['phoneNumber']}"),
-                                                  RaisedButton(
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                      ),
-                                                      color: Colors.amber,
+                                                  ElevatedButton(
+                                                      style: style,
                                                       onPressed: () async {
                                                         await UrlLauncher.launch(
                                                             "tel://${doc['phoneNumber']}");
@@ -224,6 +257,22 @@ class _StudentsDetailsState extends State<StudentsDetails> {
                             SizedBox(
                               height: 20,
                             ),
+                            ElevatedButton(
+                              style: style,
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Distributions()));
+                              },
+                              child: new Text(
+                                'Distribute',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20.0,
+                            ),
                             Text(
                               "Payments",
                               style: TextStyle(
@@ -231,6 +280,9 @@ class _StudentsDetailsState extends State<StudentsDetails> {
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w800,
                               ),
+                            ),
+                            SizedBox(
+                              height: 10.0,
                             ),
                           ]),
                         );
