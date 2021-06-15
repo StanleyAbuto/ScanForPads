@@ -295,8 +295,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Container(
                                         width: 50,
                                         height: 50,
-                                        child: totalDonations == 0 ||
-                                                students == 0
+                                        child: totalDonations == null ||
+                                                students == null
                                             ? SpinKitWave(
                                                 color: Colors.brown,
                                                 size: 20,

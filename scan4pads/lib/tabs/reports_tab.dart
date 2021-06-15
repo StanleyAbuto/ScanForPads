@@ -25,7 +25,7 @@ class _ReportsTabState extends State<ReportsTab> {
     Size size = MediaQuery.of(context).size;
     return Expanded(
       child: Scaffold(
-        body: kTotalDonations == 0
+        body: kTotalDonations == null
             ? SpinKitWave(
                 color: Colors.pink,
                 size: 80,
