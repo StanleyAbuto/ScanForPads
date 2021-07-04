@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:pad_app/screens/notifications_screen.dart';
+import 'package:pad_app/screens/e-wallet.dart';
 import 'package:pad_app/screens/qr_codes_screen.dart';
 import 'package:pad_app/tabs/donors_tab.dart';
 import 'package:pad_app/tabs/reports_tab.dart';
@@ -351,14 +351,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 IconWithText(
                                   onTap: () {
-                                    Fluttertoast.showToast(
-                                        msg: "Future work",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.TOP,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: Colors.green,
-                                        textColor: Colors.white,
-                                        fontSize: 16.0);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => EWallet())
+                                    );
                                   },
                                   text: 'E-wallet',
                                   icon: Icons.account_balance_wallet_outlined,

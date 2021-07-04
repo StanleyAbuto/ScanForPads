@@ -1,8 +1,16 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../constants.dart';
 
@@ -14,6 +22,8 @@ class QRCodes extends StatefulWidget {
 class _QRCodesState extends State<QRCodes> {
   CollectionReference collectionReference;
   String barcode = "";
+  GlobalKey globalKey = new GlobalKey();
+  String fileName = 'studentQr';
 
   @override
   void initState() {
@@ -101,8 +111,25 @@ class _QRCodesState extends State<QRCodes> {
                                   data:
                                       "${doc['name']} ${doc['number']}\n${doc['age']} years old \n class ${doc['class']} \n Parents\'s number ${doc['phoneNumber']}\n Status ${doc['status']}",
                                   version: QrVersions.auto,
-                                  size: 150.0,
+                                  size: 300.0,
                                 ),
+                                RaisedButton(onPressed: () {
+                                  _captureAndSharePng();
+                                },
+                                    color: Colors.blue[800],
+                                    child: Padding(
+                                      padding:
+                                      const EdgeInsets.symmetric(
+                                          vertical: 16.0),
+                                      child: Text(
+                                        'Save QR',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.white),
+                                      ),
+                                    )
+
+                                )
                               ],
                             ),
                           );
@@ -117,5 +144,21 @@ class _QRCodesState extends State<QRCodes> {
               ),
       ),
     );
+  }
+  Future<void> _captureAndSharePng() async {
+    try{
+      RenderRepaintBoundary boundary = globalKey.currentContext.findRenderObject();
+      var image = await boundary.toImage();
+      ByteData byteData = await image.toByteData(format: ImageByteFormat.png);
+      Uint8List pngBytes = byteData.buffer.asUint8List();
+
+      final tempDir = await getTemporaryDirectory();
+      final file = await new File('${tempDir.path}/image.png').create();
+      await file.writeAsBytes(pngBytes);
+
+      await Share.file(fileName, '$fileName.png', pngBytes, 'image/png');
+    }catch (e){
+      print(e.toString());
+    }
   }
 }

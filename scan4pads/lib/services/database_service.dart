@@ -1,12 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pad_app/models/bals.dart';
 
 import '../constants.dart';
 
 class DatabaseService {
+  final String sid;
   final String userEmail;
-  DatabaseService({this.userEmail});
+  DatabaseService({this.userEmail, this.sid});
   final CollectionReference studentsCollection =
       FirebaseFirestore.instance.collection('Schools');
+
+
+  Future updateStudentData(int balance) async {
+    return await studentsCollection.doc(kDBtoUse).collection('students').doc(sid).setData({
+      'Balance': balance,
+    });
+  }
+
+  List<Balance> _balsListFromSnapshot(QuerySnapshot snapshot){
+    return snapshot.docs.map((doc){
+      return Balance(
+        currentbal: doc.data()['Balance'] ?? 0,
+      );
+    }).toList();
+  }
+
+  // get balance stream
+  Stream<List<Balance>> get bal {
+    return studentsCollection.doc(kDBtoUse).collection('students').snapshots()
+    .map(_balsListFromSnapshot);
+  }
 
   final DocumentReference delete =
       FirebaseFirestore.instance.collection('Schools').doc(kDBtoUse);
